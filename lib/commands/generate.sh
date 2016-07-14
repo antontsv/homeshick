@@ -13,7 +13,7 @@ function generate {
 	local git_out
 	git_out=$(cd "$repo"; git init 2>&1)
 	[[ $? == 0 ]] || err $EX_SOFTWARE "Unable to initialize repository $repo. Git says:" "$git_out"
-	if [ -n "$HOMESHICK_USE_CASTLE_ROOT" ]; then
+	if is_truthy "$HOMESHICK_USE_CASTLE_ROOT"; then
 		set_castle_root_mode "$castle"
 	else
 		mkdir "$repo/home"

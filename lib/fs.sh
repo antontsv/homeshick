@@ -15,12 +15,12 @@ function homeshick_config_get {
 
 function set_castle_root_mode {
 	local castle="$1"
-	homeshick_config_set "$1" "use-castle-root" 1
+	homeshick_config_set "$1" "use-castle-root" true
 }
 
 function is_castle_root_mode_enabled {
 	config_value=$(homeshick_config_get "$1" "use-castle-root")
-	if [ $? -eq 0 ] && [ "$config_value" = "1" ];then
+	if [ $? -eq 0 ] && [ "$config_value" = "true" ];then
 		return 0
 	else
 		return 1

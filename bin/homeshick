@@ -4,6 +4,7 @@ repos="$HOME/.homesick/repos"
 # Include all helper functions. We will include the required command function later on.
 homeshick=${HOMESHICK_DIR:-$HOME/.homesick/repos/homeshick}
 source "$homeshick/lib/exit_status.sh"
+source "$homeshick/lib/helpers.sh"
 source "$homeshick/lib/fs.sh"
 source "$homeshick/lib/git.sh"
 source "$homeshick/lib/log.sh"

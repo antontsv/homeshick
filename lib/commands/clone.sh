@@ -33,7 +33,7 @@ function clone {
 		[[ $? == 0 ]] || err $EX_SOFTWARE "Unable to clone submodules for $git_repo. Git says:" "$git_out"
 		success
 	fi
-        [ -n "$HOMESHICK_USE_CASTLE_ROOT" ] && set_castle_root_mode "$cloned_castle_name"
+        is_truthy "$HOMESHICK_USE_CASTLE_ROOT" && set_castle_root_mode "$cloned_castle_name"
         [ -n "$HOMESHICK_IGNORE" ] && echo "$HOMESHICK_IGNORE" | tr ',' '\n' >> "$repo_path/.git/info/exclude"
 	return $EX_SUCCESS
 }
