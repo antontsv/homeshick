@@ -34,6 +34,7 @@ function clone {
 		success
 	fi
         [ -n "$HOMESHICK_USE_CASTLE_ROOT" ] && set_castle_root_mode "$cloned_castle_name"
+        [ -n "$HOMESHICK_IGNORE" ] && echo "$HOMESHICK_IGNORE" | tr ',' '\n' >> "$repo_path/.git/info/exclude"
 	return $EX_SUCCESS
 }
 

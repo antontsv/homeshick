@@ -98,6 +98,8 @@ function get_repo_files {
 			# (used when there are newlines in the path)
 			path=${path/#\"/}
 			path=${path/%\"/}
+			local excluded=$(cd "$root" && git ls-files -i --exclude-from=.git/info/exclude "$path")
+			[ -n "$excluded" ] && continue;
 			if [ -n "$search" ];then
 				# Check if home/ is a submodule
 				[[ $path == 'home' ]] && continue
