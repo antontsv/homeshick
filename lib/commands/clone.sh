@@ -20,12 +20,18 @@ function clone {
 	local git_out
 	version_compare $GIT_VERSION 1.6.5
 	if [[ $? != 2 ]]; then
-		git_out=$(git clone --recursive "$git_repo" "$repo_path" 2>&1)
+		if [ -n "$HOMESHICK_CLONE_BRANCH" ];then
+			git_out=$(git clone -b "$HOMESHICK_CLONE_BRANCH" --recursive "$git_repo" "$repo_path" 2>&1)
+		else
+			git_out=$(git clone $clone_branch_param --recursive "$git_repo" "$repo_path" 2>&1)
+		fi;
 		[[ $? == 0 ]] || err $EX_SOFTWARE "Unable to clone $git_repo. Git says:" "$git_out"
 		success
 	else
 		git_out=$(git clone "$git_repo" "$repo_path" 2>&1)
 		[[ $? == 0 ]] || err $EX_SOFTWARE "Unable to clone $git_repo. Git says:" "$git_out"
+		git_out=$(git branch "$HOMESHICK_CLONE_BRANCH" "origin/$HOMESHICK_CLONE_BRANCH" && git checkout "$HOMESHICK_CLONE_BRANCH")
+		[[ $? == 0 ]] || err $EX_SOFTWARE "Cannot checkout branch '$HOMESHICK_CLONE_BRANCH' for $git_repo. Git says:" "$git_out"
 		success
 
 		pending 'submodules' "$git_repo"
