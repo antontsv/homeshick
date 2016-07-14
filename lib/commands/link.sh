@@ -5,7 +5,7 @@ function symlink {
 	local castle=$1
 	castle_exists 'link' "$castle"
 	local repo="$repos/$castle"
-	if [[ ! -d $repo/home ]]; then
+	if ! is_castle_root_mode_enabled "$castle" && [ ! -d "$repo/home" ]; then
 		ignore 'ignored' "$castle"
 		return $EX_SUCCESS
 	fi
@@ -17,7 +17,11 @@ function symlink {
 	# using the real stdin for prompting the user whether he wants to overwrite or skip
 	# on conflicts.
 	while IFS= read -d $'\0' -r filename <&3 ; do
-		remote="$repo/home/$filename"
+		if is_castle_root_mode_enabled "$castle"; then
+			remote="$repo/$filename"
+		else
+			remote="$repo/home/$filename"
+		fi;
 		local="$HOME/$filename"
 
 		if [[ -e $local || -L $local ]]; then
@@ -69,7 +73,7 @@ function symlink {
 
 		success
 	# Fetch the repo files and redirect the output into file descriptor 3
-	done 3< <(get_repo_files "$repo")
+	done 3< <(get_repo_files "$repo" "$castle")
 	return $EX_SUCCESS
 }
 
@@ -82,6 +86,11 @@ function get_repo_files {
 	# We do this so that the root part of $toplevel can be replaced
 	# git resolves symbolic links before it outputs $toplevel
 	local root=$(cd "$1"; pwd -P)
+	if is_castle_root_mode_enabled "$2"; then
+		local search="";
+	else
+		local search="home/";
+	fi
 	(
 		local path
 		while IFS= read -d $'\n' -r path; do
@@ -89,10 +98,12 @@ function get_repo_files {
 			# (used when there are newlines in the path)
 			path=${path/#\"/}
 			path=${path/%\"/}
-			# Check if home/ is a submodule
-			[[ $path == 'home' ]] && continue
-			# Remove the home/ part
-			path=${path/#home\//}
+			if [ -n "$search" ];then
+				# Check if home/ is a submodule
+				[[ $path == 'home' ]] && continue
+				# Remove the home/ part
+				path=${path/#home\//}
+			fi;
 			# Print the file path (NUL separated because \n can be used in filenames)
 			printf "$path\0"
 			# Get the path of all the parent directories
@@ -107,7 +118,7 @@ function get_repo_files {
 		# Enter the repo, list the repo root files in home
 		# and do the same for any submodules
 		done < <(cd "$root" &&
-		         git ls-files 'home/' &&
+		       	 git ls-files "$search" &&
 		         git submodule --quiet foreach --recursive \
 		         "$homeshick/lib/submodule_files.sh \"$root\" \"\$toplevel\" \"\$path\"")
 		# Unfortunately we have to use an external script for `git submodule foreach'

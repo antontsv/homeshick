@@ -27,12 +27,18 @@ function track {
 	local repo="$repos/$castle"
 	oldIFS=$IFS
 	IFS=$'\n'
+    root_dir_mode= is_castle_root_mode_enabled "$castle" && true
+    if is_castle_root_mode_enabled "$castle"; then
+        local prefix="";
+    else
+        local prefix="home/";
+    fi;
 	for local in $files_to_track; do
 		IFS=$oldIFS
 
 		local filepath=${local#$HOME/}
 		pending 'track' "$filepath"
-		local rel_remote="home/$filepath"
+		local rel_remote="${prefix}$filepath"
 		local remote="$repo/$rel_remote"
 
 		if [[ -e $remote ]]; then

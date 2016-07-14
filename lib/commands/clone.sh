@@ -12,7 +12,8 @@ function clone {
 		fi
 		git_repo="https://github.com/$git_repo.git"
 	fi
-	local repo_path=$repos"/"$(repo_basename "$git_repo")
+	local cloned_castle_name=$(repo_basename "$git_repo")
+	local repo_path=$repos"/"$cloned_castle_name
 	pending 'clone' "$git_repo"
 	test -e "$repo_path" && err $EX_ERR "$repo_path already exists"
 
@@ -32,6 +33,7 @@ function clone {
 		[[ $? == 0 ]] || err $EX_SOFTWARE "Unable to clone submodules for $git_repo. Git says:" "$git_out"
 		success
 	fi
+        [ -n "$HOMESHICK_USE_CASTLE_ROOT" ] && set_castle_root_mode "$cloned_castle_name"
 	return $EX_SUCCESS
 }
 
@@ -44,10 +46,14 @@ function symlink_cloned_files {
 		local castle=$(repo_basename "$git_repo")
 		shift
 		local repo="$repos/$castle"
-		if [[ ! -d $repo/home ]]; then
+		if is_castle_root_mode_enabled "$castle"; then
+			local search_dir="$repo";
+		elif [ -d "$repo/home" ]; then
+			local search_dir="$repo/home";
+		else
 			continue;
 		fi
-		local num_files=$(find "$repo/home" -mindepth 1 -maxdepth 1 | wc -l | tr -dc "0123456789")
+		local num_files=$(find "$search_dir" -mindepth 1 -maxdepth 1 | wc -l | tr -dc "0123456789")
 		if [[ $num_files > 0 ]]; then
 			cloned_castles+=("$castle")
 		fi

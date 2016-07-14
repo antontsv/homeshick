@@ -35,7 +35,7 @@ function symlink_new_files {
 		local castle=$1
 		shift
 		local repo="$repos/$castle"
-		if [[ ! -d $repo/home ]]; then
+		if ! is_castle_root_mode_enabled "$castle" && [[ ! -d $repo/home ]]; then
 			continue;
 		fi
 		local git_out
