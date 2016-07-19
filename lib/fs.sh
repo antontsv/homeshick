@@ -4,13 +4,13 @@ function homeshick_config_set {
 	local castle="$1"
 	local config_key="$2"
 	local config_value="$3"
-	git config -f "$repos/../${castle}.config" "homeshick.$config_key" "$config_value"
+	git config -f "$repos/$castle/.git/config" "homeshick.$config_key" "$config_value"
 }
 
 function homeshick_config_get {
     local castle="$1"
     local config_key="$2"
-    git config -f "$repos/../${castle}.config" "homeshick.$config_key"
+    git config -f "$repos/$castle/.git/config" "homeshick.$config_key"
 }
 
 function set_castle_root_mode {
