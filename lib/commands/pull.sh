@@ -15,7 +15,13 @@ function pull {
 
 	local git_out
 	git_out=$(cd "$repo"; git pull 2>&1)
-	[[ $? == 0 ]] || err $EX_SOFTWARE "Unable to pull $repo. Git says:" "$git_out"
+	if [ $? -ne 0 ];then
+         # try to reset bad merge, to get to a clean state:
+         $(cd "$repo"; git reset --merge 1>/dev/null 2>&1)
+         # abort any rebase if pull has been overriden to do a rebase:
+         $(cd "$repo"; git rebase --abort 1>/dev/null 2>&1)
+         err $EX_SOFTWARE "Unable to pull $repo. Git says:" "$git_out"
+    fi;
 
 	version_compare $GIT_VERSION 1.6.5
 	if [[ $? != 2 ]]; then
