@@ -88,8 +88,10 @@ function get_repo_files {
 	local root=$(cd "$1"; pwd -P)
 	if is_castle_root_mode_enabled "$2"; then
 		local search="";
+		local root_mode=1;
 	else
 		local search="home/";
+		local root_mode=0;
 	fi
 	(
 		local path
@@ -122,7 +124,7 @@ function get_repo_files {
 		done < <(cd "$root" &&
 		       	 git ls-files "$search" &&
 		         git submodule --quiet foreach --recursive \
-		         "$homeshick/lib/submodule_files.sh \"$root\" \"\$toplevel\" \"\$path\"")
+		         "$homeshick/lib/submodule_files.sh \"$root\" \"\$toplevel\" \"\$path\" \"$root_mode\"")
 		# Unfortunately we have to use an external script for `git submodule foreach'
 		# because versions prior to ~ 2.0 use `eval' to execute the argument.
 		# This somehow messes quite badly with string substitution.
