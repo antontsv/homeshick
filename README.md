@@ -1,4 +1,4 @@
-homeshick [![Build Status](https://travis-ci.org/andsens/homeshick.png?branch=development)](https://travis-ci.org/andsens/homeshick)
+homeshick [![Build Status](https://img.shields.io/travis/andsens/homeshick/development.svg?label=origin)](https://travis-ci.org/andsens/homeshick) [![Build Status](https://img.shields.io/travis/antontsv/homeshick.svg?label=antontsv_fork)](https://travis-ci.org/antontsv/homeshick)
 =========
 In Unix, configuration files are king.  
 Tailoring tools to suit your needs through configuration can be empowering.  
