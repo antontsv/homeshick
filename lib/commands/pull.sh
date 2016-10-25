@@ -24,7 +24,7 @@ function pull {
     fi;
 
     version_compare $GIT_VERSION 1.7.10
-    if [[ $?G == 2 ]];then
+    if [[ $? == 2 ]];then
         submodule_fix_out=$(cd "$repo"; submodule_force_relative_path "$repo" 2>&1)
         [[ $? == 0 ]] || err $EX_SOFTWARE "Unable force relative path for submodules in $repo. Output says:" "$submodule_fix_out"
     fi;
@@ -72,7 +72,7 @@ function submodule_force_relative_path {
             local only_slashes="${module_full_path//[^\/]}"
             local module_path_level_count=$((${#only_slashes} + 1))
             local prefix=$(printf "%0.s../" $(seq 1 $module_path_level_count))
-            echo "gitdir: ${prefix}.git/modules/${2//$parent_separator//modules/}$module" > "$module/.git"i
+            echo "gitdir: ${prefix}.git/modules/${2//$parent_separator//modules/}$module" > "${1}/$module_full_path/.git"
             local parents="${2//[^$parent_separator]}"
             # .git/module counts as 2 levels, plus one level for each nested parent
             local prefix2=$(printf "%0.s../" $(seq 1 $(($module_path_level_count + 2 + ${#parents}))))
