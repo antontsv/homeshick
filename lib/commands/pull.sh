@@ -23,6 +23,12 @@ function pull {
          err $EX_SOFTWARE "Unable to pull $repo. Git says:" "$git_out"
     fi;
 
+    version_compare $GIT_VERSION 1.7.10
+    if [[ $?G == 2 ]];then
+        submodule_fix_out=$(cd "$repo"; submodule_force_relative_path "$repo" 2>&1)
+        [[ $? == 0 ]] || err $EX_SOFTWARE "Unable force relative path for submodules in $repo. Output says:" "$submodule_fix_out"
+    fi;
+
 	version_compare $GIT_VERSION 1.6.5
 	if [[ $? != 2 ]]; then
 		git_out=$(cd "$repo"; git submodule update --recursive --init 2>&1)
@@ -55,4 +61,24 @@ function symlink_new_files {
 	done
 	ask_symlink ${updated_castles[*]}
 	return $EX_SUCCESS
+}
+
+function submodule_force_relative_path {
+    if [ -f .gitmodules ];then
+        local modules=($(cat .gitmodules | grep 'path = ' | awk '{print $3}'))
+        local parent_separator=";"
+        for module in "${modules[@]}"; do
+            local module_full_path="${2//$parent_separator//}$module"
+            local only_slashes="${module_full_path//[^\/]}"
+            local module_path_level_count=$((${#only_slashes} + 1))
+            local prefix=$(printf "%0.s../" $(seq 1 $module_path_level_count))
+            echo "gitdir: ${prefix}.git/modules/${2//$parent_separator//modules/}$module" > "$module/.git"i
+            local parents="${2//[^$parent_separator]}"
+            # .git/module counts as 2 levels, plus one level for each nested parent
+            local prefix2=$(printf "%0.s../" $(seq 1 $(($module_path_level_count + 2 + ${#parents}))))
+            git config -f "${1}/.git/modules/${2//$parent_separator//modules/}$module/config" core.worktree "${prefix2}$module_full_path"
+            submodule_fix_out=$(cd "${1}/$module_full_path"; submodule_force_relative_path "$1" "${2:-}$module$parent_separator" 2>&1)
+        done
+        [[ $? == 0 ]] || err $EX_SOFTWARE "Unable force relative path for submodules in $repo. Output says:" "$submodule_fix_out"
+    fi;
 }
