@@ -87,7 +87,7 @@ function get_repo_files {
 	# git resolves symbolic links before it outputs $toplevel
 	local root=$(cd "$1"; pwd -P)
 	if is_castle_root_mode_enabled "$2"; then
-		local search="";
+		local search=".";
 		local root_mode=1;
 	else
 		local search="home/";
