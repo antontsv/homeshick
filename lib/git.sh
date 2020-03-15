@@ -1,11 +1,12 @@
 #!/bin/bash
 
-# Snatched from http://stackoverflow.com/questions/4023830/bash-how-compare-two-strings-in-version-format 
+# Snatched from http://stackoverflow.com/questions/4023830/bash-how-compare-two-strings-in-version-format
 function version_compare {
-	if [[ $1 == $2 ]]; then
+	if [[ $1 == "$2" ]]; then
 		return 0
 	fi
 	local IFS=.
+	# shellcheck disable=SC2206
 	local i ver1=($1) ver2=($2)
 	# fill empty fields in ver1 with zeros
 	for ((i=${#ver1[@]}; i<${#ver2[@]}; i++)); do
@@ -31,12 +32,15 @@ function repo_has_upstream {
 
 	# Check if the castle has an upstream remote
 	# Fetch the current branch name
-	local ref=$(cd "$repo"; git symbolic-ref HEAD 2>/dev/null)
-	local branch=${ref#refs/heads/}
+	local ref
+	local branch
+	ref=$(cd "$repo" && git symbolic-ref HEAD 2>/dev/null)
+	branch=${ref#refs/heads/}
 	# Get the upstream remote of that branch
-	local remote_name=$(cd "$repo"; git config branch.$branch.remote 2>/dev/null)
+	local remote_name
+	remote_name=$(cd "$repo" && git config "branch.$branch.remote" 2>/dev/null)
 	if [[ -z $remote_name ]]; then
-		return $EX_ERR
+		return "$EX_ERR"
 	fi
-	return $EX_SUCCESS
+	return "$EX_SUCCESS"
 }
