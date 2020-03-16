@@ -23,8 +23,10 @@ function pull {
 	# verify signature
 	local vout
 	# shellcheck disable=SC2154
-	if ! vout=$($verify_tool sigcheck -k "$trusted_keys_file" -p "$repo" -r FETCH_HEAD 2>&1);then
-		err "$EX_SOFTWARE" "Verify signature on fetched data, stopping pull for $repo. Signature check says:" "$vout"
+	if [ -r "$trusted_keys_file" ];then
+		if ! vout=$($verify_tool sigcheck -k "$trusted_keys_file" -p "$repo" -r FETCH_HEAD 2>&1);then
+			err "$EX_SOFTWARE" "Verify signature on fetched data, stopping pull for $repo. Signature check says:" "$vout"
+		fi;
 	fi;
 
 	if ! git_out=$(cd "$repo" && git merge FETCH_HEAD 2>&1);then
