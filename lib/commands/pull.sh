@@ -14,7 +14,20 @@ function pull {
 	fi
 
 	local git_out
-	if ! git_out=$(cd "$repo" && git pull 2>&1);then
+
+	# just fetch first - no merging yet
+	if ! git_out=$(cd "$repo" && git fetch 2>&1);then
+         err "$EX_SOFTWARE" "Unable to fetch as a part of git pull on $repo. Git says:" "$git_out"
+    fi;
+
+	# verify signature
+	local vout
+	# shellcheck disable=SC2154
+	if ! vout=$($verify_tool sigcheck -k "$trusted_keys_file" -p "$repo" -r FETCH_HEAD 2>&1);then
+		err "$EX_SOFTWARE" "Verify signature on fetched data, stopping pull for $repo. Signature check says:" "$vout"
+	fi;
+
+	if ! git_out=$(cd "$repo" && git merge FETCH_HEAD 2>&1);then
          # try to reset bad merge, to get to a clean state:
          cd "$repo" && git reset --merge 1>/dev/null 2>&1
          # abort any rebase if pull has been overriden to do a rebase:

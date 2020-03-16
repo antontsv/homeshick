@@ -17,6 +17,13 @@ source "$homeshick/lib/log.sh"
 # shellcheck source=lib/prompt.sh
 source "$homeshick/lib/prompt.sh"
 
+# extra setting for GPG signatures
+# shellcheck disable=SC2034
+trusted_keys_file="$HOME/.homesick/trusted_keys.asc"
+verify_tool="$homeshick/bin/verify-commit"
+# shellcheck disable=SC2034
+[ "$(uname -s)" = "Darwin" ] && verify_tool="$homeshick/bin/macos-verify-commit"
+
 # lots of global variables in here, so just disable SC2034 for the entire file
 # shellcheck disable=SC2034
 true
